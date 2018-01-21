@@ -12,6 +12,13 @@ import org.litote.kmongo.getCollection
 import org.telegram.telegrambots.api.methods.send.SendMessage
 
 class SubscriptionService {
+    init {
+        Scheduler.runEvery(60000) {
+            AppContext.tvProgram.getProgramsIn(60000 * 15)
+                    .forEach(this::sendNotifications)
+        }
+    }
+
     fun addSubscription(chatId: Long, type: TVProgramType) =
             Storage.db.getCollection<Subscription>().insertOne(Subscription(
                     null,
@@ -37,12 +44,6 @@ class SubscriptionService {
     private fun filter(chatId: Long, subscriptionType: String): String =
             "{chatId: $chatId, type: '$subscriptionType'}"
 
-    init {
-        Scheduler.runEvery(60000) {
-            AppContext.tvProgram.getProgramsIn(60000 * 15)
-                    .forEach(this::sendNotifications)
-        }
-    }
 
     private fun sendNotifications(item: TVProgramItem) {
         getSubscriptions(TVProgramType.valueOf(item.type)).forEach { subscription ->

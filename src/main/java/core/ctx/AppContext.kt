@@ -5,6 +5,7 @@ import core.loadSettings
 import core.services.tv.TVProgramService
 import core.services.reminder.ReminderService
 import core.services.tv.SubscriptionService
+import core.services.zenitTikets.ZenitTicketService
 
 
 object AppContext {
@@ -13,4 +14,5 @@ object AppContext {
     val tvProgram = TVProgramService()
     val reminderService = ReminderService()
     val subscriptionService = SubscriptionService()
+    val zenitTicketService = ZenitTicketService()
 }
