@@ -4,6 +4,7 @@ import core.commandsHandler.*
 import core.ctx.AppContext
 import core.services.reminder.RemindEntity
 import core.services.reminder.RepeatType
+import core.services.reminder.RepeatType.*
 import org.telegram.telegrambots.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.api.objects.Update
@@ -58,16 +59,16 @@ class ReminderCommand : Command {
     }
 
     private val dateKeyboard = listOf(
-            mapOf("year+" to "year+",
-                    "year-" to "year-"),
-            mapOf("month+" to "month+",
-                    "month-" to "month-"),
-            mapOf("day+" to "day+",
-                    "day-" to "day-"),
-            mapOf("hour+" to "hour+",
-                    "hour-" to "hour-"),
-            mapOf("min+" to "minutes+",
-                    "min-" to "minutes-"),
+            mapOf("year-" to "year-",
+                    "year+" to "year+"),
+            mapOf("month-" to "month-",
+                    "month+" to "month+"),
+            mapOf("day-" to "day-",
+                    "day+" to "day+"),
+            mapOf("hour-" to "hour-",
+                    "hour+" to "hour+"),
+            mapOf("min-" to "minutes-",
+                    "min+" to "minutes+"),
             mapOf("ok" to "ok")
     )
 
@@ -77,11 +78,13 @@ class ReminderCommand : Command {
     )
 
     private val repeatKeyboard = listOf(
-            mapOf("Каждый день" to "day",
-                    "Каждую неделю" to "week",
-                    "Раз в две недели" to "week2"),
-            mapOf("Каждый месяц" to "month",
-                    "Каждый год" to "year")
+            mapOf(DAY.text to DAY.name,
+                    WORK_DAYS.text to WORK_DAYS.name,
+                    WEEKENDS.text to WEEKENDS.name),
+            mapOf(WEEK.text to WEEK.name,
+                    WEEK2.text to WEEK2.name),
+            mapOf(MONTH.text to MONTH.name,
+                    YEAR.text to YEAR.name)
     )
 
     private fun askDate(update: Update) {
@@ -108,7 +111,7 @@ class ReminderCommand : Command {
                         "ok" -> {
                             AppContext.bot.execute(DeleteMessage(update.chatId(), update.callbackQuery.message.messageId))
                             stage = Waiting.ASK_REPEAT
-                            update.sendKeyboard("Ок, напомню ${time.text()},\n надо повторять это напоминание?", createKeyboard(yesNoKeyboard))
+                            update.sendKeyboard("Ок, напомню ${time.text()}\nНадо повторять это напоминание?", createKeyboard(yesNoKeyboard))
                             return
                         }
                     }
@@ -128,7 +131,7 @@ class ReminderCommand : Command {
                             update.sendKeyboard("Как часто?", createKeyboard(repeatKeyboard))
                         }
                         "no" -> {
-                            repeatType = RepeatType.NEVER
+                            repeatType = NEVER
                             update.sendText("Ок, напомню ${reminderBuilder.time.text()}")
                             finish(update)
                         }
@@ -140,8 +143,8 @@ class ReminderCommand : Command {
             }
             Waiting.SET_REPEAT_TYPE -> {
                 try {
-                    reminderBuilder.repeatType = RepeatType.valueOf(update.callbackQuery.data.toUpperCase())
-                    update.sendText("Ок, ${reminderBuilder.time.text()} и потом ${reminderBuilder.repeatType!!.text}")
+                    reminderBuilder.repeatType = valueOf(update.callbackQuery.data.toUpperCase())
+                    update.sendText("Ок, ${reminderBuilder.time.text()} и потом ${reminderBuilder.repeatType!!.text.toLowerCase()}")
                     finish(update)
                     AppContext.bot.execute(DeleteMessage(update.chatId(), update.callbackQuery.message.messageId))
                 }
@@ -159,5 +162,5 @@ class ReminderCommand : Command {
         update.finishContext()
     }
 
-    private fun ZonedDateTime.text(): String = this.format(DateTimeFormatter.ofPattern("uuuu MMM dd HH:mm"))
+    private fun ZonedDateTime.text(): String = this.format(DateTimeFormatter.ofPattern("uuuu MMM dd(EEE) HH:mm"))
 }
