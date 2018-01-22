@@ -86,7 +86,7 @@ class ReminderListCommand : Command {
                     "$n. ${reminders[i].text} " +
                             "${reminders[i].time
                                     .toDateTime()
-                                    .format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy"))} " +
+                                    .format(DateTimeFormatter.ofPattern("HH:mm EEE dd/MM/yyyy"))} " +
                             "${reminders[i].repeatType?.text?:""}\n")
             n++
         }

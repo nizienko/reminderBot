@@ -2,6 +2,7 @@ package core.services.reminder
 
 import core.ctx.AppContext
 import core.db.Storage
+import core.services.reminder.RepeatType.*
 import core.utils.Scheduler
 import core.utils.toDateTime
 import org.litote.kmongo.MongoOperator.lt
@@ -9,6 +10,7 @@ import org.litote.kmongo.deleteOneById
 import org.litote.kmongo.find
 import org.litote.kmongo.getCollection
 import org.telegram.telegrambots.api.methods.send.SendMessage
+import java.time.DayOfWeek.*
 
 class ReminderService {
     init {
@@ -49,7 +51,7 @@ class ReminderService {
 
     private fun insertNext(reminder: RemindEntity) = with(reminder) {
         when (repeatType) {
-            RepeatType.DAY -> {
+            DAY -> {
                 Storage.db.getCollection<RemindEntity>()
                         .insertOne(RemindEntity(
                                 text = text,
@@ -59,7 +61,41 @@ class ReminderService {
                                 repeatType = repeatType
                         ))
             }
-            RepeatType.WEEK -> {
+            WORK_DAYS -> {
+                val newTime = when (time.toDateTime().dayOfWeek) {
+                    FRIDAY -> time.toDateTime().plusDays(3)
+                    SATURDAY -> time.toDateTime().plusDays(2)
+                    else -> time.toDateTime().plusDays(1)
+                }
+                Storage.db.getCollection<RemindEntity>()
+                        .insertOne(RemindEntity(
+                                text = text,
+                                time = newTime.toInstant().toEpochMilli(),
+                                chatId = chatId,
+                                userName = userName,
+                                repeatType = repeatType
+                        ))
+            }
+            WEEKENDS -> {
+                val newTime = when (time.toDateTime().dayOfWeek!!) {
+                    MONDAY -> time.toDateTime().plusDays(5)
+                    TUESDAY -> time.toDateTime().plusDays(4)
+                    WEDNESDAY -> time.toDateTime().plusDays(3)
+                    THURSDAY -> time.toDateTime().plusDays(2)
+                    FRIDAY -> time.toDateTime().plusDays(1)
+                    SATURDAY -> time.toDateTime().plusDays(1)
+                    SUNDAY -> time.toDateTime().plusDays(6)
+                }
+                Storage.db.getCollection<RemindEntity>()
+                        .insertOne(RemindEntity(
+                                text = text,
+                                time = newTime.toInstant().toEpochMilli(),
+                                chatId = chatId,
+                                userName = userName,
+                                repeatType = repeatType
+                        ))
+            }
+            WEEK -> {
                 Storage.db.getCollection<RemindEntity>()
                         .insertOne(RemindEntity(
                                 text = text,
@@ -69,7 +105,7 @@ class ReminderService {
                                 repeatType = repeatType
                         ))
             }
-            RepeatType.WEEK2 -> {
+            WEEK2 -> {
                 Storage.db.getCollection<RemindEntity>()
                         .insertOne(RemindEntity(
                                 text = text,
@@ -79,7 +115,7 @@ class ReminderService {
                                 repeatType = repeatType
                         ))
             }
-            RepeatType.MONTH -> {
+            MONTH -> {
                 val newTime = time.toDateTime().plusMonths(1)
                 Storage.db.getCollection<RemindEntity>()
                         .insertOne(RemindEntity(
@@ -90,7 +126,7 @@ class ReminderService {
                                 repeatType = repeatType
                         ))
             }
-            RepeatType.YEAR -> {
+            YEAR -> {
                 val newTime = time.toDateTime().plusYears(1)
                 Storage.db.getCollection<RemindEntity>()
                         .insertOne(RemindEntity(
