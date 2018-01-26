@@ -35,8 +35,11 @@ class ZenitTicketService {
             val oldGames = Storage.db.getCollection<Game>().find()
             gamesFromSite.forEach { game ->
                 oldGames.forEach {
-                    if (game != it)
+                    if (game != it) {
                         Storage.db.getCollection<Game>().insertOne(game)
+                        SubscriptionTicketService.sendNotifications(game)
+                    }
+
                 }
             }
         }
@@ -118,5 +121,13 @@ data class Game(
         result = prime * result + league.hashCode()
 
         return result
+    }
+
+    fun toMessage(): String {
+        return StringBuilder()
+                .appendln("$sport:$league")
+                .appendln(matchName)
+                .appendln(matchDate)
+                .toString()
     }
 }
