@@ -8,11 +8,12 @@ object CommandsFactory {
             "/notify" to { SubscriptionCommand() },
             "/web" to { WebSiteCommand() },
             "/button" to { ButtonCommand() },
-            "/remind" to { ReminderCommand()},
-            "/remind_list" to { ReminderListCommand()},
+            "/remind" to { ReminderCommand() },
+            "/remind_list" to { ReminderListCommand() },
             "/help" to { HelpCommand() }
     )
 }
+
 private fun Update.cmd(): String = this.message.text.split(" ")[0].trim()
 
 fun Update.isCommand(): Boolean = CommandsFactory.commands.containsKey(this.cmd())

@@ -34,7 +34,7 @@ class ReminderListCommand : Command {
 
     override fun callback(update: Update) {
         AppContext.bot.execute(DeleteMessage(update.chatId(), update.callbackQuery.message.messageId))
-        when(update.callbackQuery.data) {
+        when (update.callbackQuery.data) {
             "<" -> {
                 chosenPage--
                 showList(update)
@@ -87,7 +87,7 @@ class ReminderListCommand : Command {
                             "${reminders[i].time
                                     .toDateTime()
                                     .format(DateTimeFormatter.ofPattern("HH:mm EEE dd/MM/yyyy"))} " +
-                            "${reminders[i].repeatType?.text?:""}\n")
+                            "${reminders[i].repeatType?.text ?: ""}\n")
             n++
         }
         if (firstItem() + 5 < reminders.size) {

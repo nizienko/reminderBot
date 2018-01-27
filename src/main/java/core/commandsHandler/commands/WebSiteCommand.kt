@@ -21,7 +21,7 @@ class WebSiteCommand : Command {
     }
 
     override fun update(update: Update) {
-        when(currentState) {
+        when (currentState) {
             State.WAIT_FOR_URL -> {
                 val text = Jsoup.connect(update.message.text.trim())
                         .get().body().text()

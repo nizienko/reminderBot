@@ -3,6 +3,7 @@ package core.commandsHandler.commands
 import core.commandsHandler.*
 import core.ctx.AppContext
 import core.services.reminder.RemindEntity
+import core.services.reminder.RepeatType
 import core.services.reminder.RepeatType.*
 import org.telegram.telegrambots.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText
@@ -146,8 +147,7 @@ class ReminderCommand : Command {
                     update.sendText("Ок, ${reminderBuilder.time.text()} и потом ${reminderBuilder.repeatType!!.text.toLowerCase()}")
                     finish(update)
                     AppContext.bot.execute(DeleteMessage(update.chatId(), update.callbackQuery.message.messageId))
-                }
-                catch (e: Exception) {
+                } catch (e: Exception) {
                     e.printStackTrace()
                     update.sendText("Извини, что-то пошло не так")
                 }
